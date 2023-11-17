@@ -18,19 +18,20 @@ injurious_collisions = collisions[collisions["NUMBER OF PERSONS INJURED"] > 0]
 
 def pointify(srs):
     lat, long = srs['LATITUDE'], srs['LONGITUDE']
-    if pd.isnull(lat) or pd.isnull(long):
-        return Point(0, 0)
-    else:
-        return Point(long, lat)
+    return Point(0, 0) if pd.isnull(lat) or pd.isnull(long) else Point(long, lat)
 
 fatal_collisions = gpd.GeoDataFrame(fatal_collisions,
                                     geometry=fatal_collisions.apply(pointify, axis='columns'))
-fatal_collisions = fatal_collisions[fatal_collisions.geometry.map(lambda srs: not (srs.x == 0))]
+fatal_collisions = fatal_collisions[
+    fatal_collisions.geometry.map(lambda srs: srs.x != 0)
+]
 fatal_collisions = fatal_collisions[fatal_collisions['DATE'].map(lambda day: "2016" in day)]
 
 injurious_collisions = gpd.GeoDataFrame(injurious_collisions,
                                         geometry=injurious_collisions.apply(pointify, axis='columns'))
-injurious_collisions = injurious_collisions[injurious_collisions.geometry.map(lambda srs: not (srs.x == 0))]
+injurious_collisions = injurious_collisions[
+    injurious_collisions.geometry.map(lambda srs: srs.x != 0)
+]
 injurious_collisions = injurious_collisions[injurious_collisions['DATE'].map(lambda day: "2016" in day)]
 
 

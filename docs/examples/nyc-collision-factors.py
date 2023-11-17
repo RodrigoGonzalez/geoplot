@@ -20,7 +20,7 @@ def pointify(srs):
         return shapely.geometry.Point(long, lat)
 
 collisions = gpd.GeoDataFrame(collisions.head(100000), geometry=collisions.head(100000).apply(pointify, axis='columns'))
-collisions = collisions[collisions.geometry.map(lambda srs: not (srs.x == 0))]
+collisions = collisions[collisions.geometry.map(lambda srs: srs.x != 0)]
 
 
 # Plot the data.

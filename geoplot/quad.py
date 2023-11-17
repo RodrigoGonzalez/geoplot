@@ -62,11 +62,11 @@ class QuadTree:
             for ind, subgroup in groups:
                 self.n += len(subgroup.index.values)
                 self.agg[ind] = subgroup.index.values
-            self.data = gdf
         else:
             self.agg = dict()
             self.n = 0
-            self.data = gdf
+
+        self.data = gdf
 
     def split(self):
         """
@@ -108,9 +108,8 @@ class QuadTree:
         """
         if self.n < nmin:
             return [self]
-        else:
-            ret = subpartition(self, nmin, nmax)
-            return flatten(ret)
+        ret = subpartition(self, nmin, nmax)
+        return flatten(ret)
 
 
 def subpartition(quadtree, nmin, nmax):
@@ -132,7 +131,7 @@ def subpartition(quadtree, nmin, nmax):
     subtrees = quadtree.split()
     if quadtree.n > nmax:
         return [q.partition(nmin, nmax) for q in subtrees]
-    elif any([t.n < nmin for t in subtrees]):
+    elif any(t.n < nmin for t in subtrees):
         return [quadtree]
     else:
         return [q.partition(nmin, nmax) for q in subtrees]

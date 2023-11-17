@@ -14,14 +14,11 @@ collisions = pd.read_csv("../../data/nyc_collisions/NYPD_Motor_Vehicle_Collision
 
 def pointify(srs):
     lat, long = srs['LATITUDE'], srs['LONGITUDE']
-    if pd.isnull(lat) or pd.isnull(long):
-        return Point(0, 0)
-    else:
-        return Point(long, lat)
+    return Point(0, 0) if pd.isnull(lat) or pd.isnull(long) else Point(long, lat)
 
 
 collisions = gpd.GeoDataFrame(collisions, geometry=collisions.apply(pointify, axis='columns'))
-collisions = collisions[collisions.geometry.map(lambda srs: not (srs.x == 0))]
+collisions = collisions[collisions.geometry.map(lambda srs: srs.x != 0)]
 collisions = collisions[~collisions['ZIP CODE'].isin([10000, 10803, 11242])]
 zip_codes = gpd.read_file("../../data/nyc_zip_codes/ZIP_CODE_040114.shp")
 zip_codes['ZIPCODE'] = zip_codes['ZIPCODE'].astype(int)

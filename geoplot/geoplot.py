@@ -312,8 +312,6 @@ def pointplot(df, projection=None,
         # Set extent.
         if extent:
             ax.set_extent(extent)
-        else:
-            pass  # Default extent.
     else:
         ax = plt.subplot(111)
 
@@ -343,13 +341,12 @@ def pointplot(df, projection=None,
             # Add a legend, if appropriate.
             if legend and (legend_var != "scale" or scale is None):
                 _paint_hue_legend(ax, categories, cmap, legend_labels, legend_kwargs)
+        elif 'color' in kwargs:
+            colors = [kwargs['color']]*len(df)
+            kwargs.pop('color')
         else:
-            if 'color' not in kwargs.keys():
-                colors = ['steelblue']*len(df)
-            else:
-                colors = [kwargs['color']]*len(df)
-                kwargs.pop('color')
-    elif k is None and hue is not None:
+            colors = ['steelblue']*len(df)
+    elif hue is not None:
         # Continuous colormap code path.
         hue_values = hue
         cmap = _continuous_colormap(hue_values, cmap, vmin, vmax)
@@ -361,11 +358,7 @@ def pointplot(df, projection=None,
 
     # Check if the ``scale`` parameter is filled, and use it to fill a ``values`` name.
     if scale:
-        if isinstance(scale, str):
-            scalar_values = df[scale]
-        else:
-            scalar_values = scale
-
+        scalar_values = df[scale] if isinstance(scale, str) else scale
         # Compute a scale function.
         dmin, dmax = np.min(scalar_values), np.max(scalar_values)
         if not scale_func:
@@ -394,7 +387,7 @@ def pointplot(df, projection=None,
         if legend and (legend_var == "scale" or hue is None):
             _paint_carto_legend(ax, scalar_values, legend_values, legend_labels, dscale, legend_kwargs)
     else:
-        sizes = kwargs.pop('s') if 's' in kwargs.keys() else 20
+        sizes = kwargs.pop('s') if 's' in kwargs else 20
 
     # Draw.
     if projection:
@@ -742,7 +735,7 @@ def choropleth(df, projection=None,
                 _paint_hue_legend(ax, categories, cmap, legend_labels, legend_kwargs)
         else:
             colors = ['steelblue']*len(df)
-    elif k is None and hue is not None:
+    elif hue is not None:
         # Continuous colormap code path.
         hue_values = hue
         cmap = _continuous_colormap(hue_values, cmap, vmin, vmax)
@@ -1627,14 +1620,11 @@ def kdeplot(df, projection=None,
             feature = ShapelyFeature([clip_geom], ccrs.PlateCarree())
             ax.add_feature(feature, facecolor=(1,1,1), linewidth=0, zorder=100)
     else:
-        if clip is None:
-            sns.kdeplot(pd.Series([p.x for p in df.geometry]), pd.Series([p.y for p in df.geometry]), ax=ax, **kwargs)
-        else:
+        if clip is not None:
             clip_geom = _get_clip(ax.get_xlim() + ax.get_ylim(), clip)
             polyplot(gpd.GeoSeries(clip_geom),
                      facecolor='white', linewidth=0, zorder=100, extent=ax.get_xlim() + ax.get_ylim(), ax=ax)
-            sns.kdeplot(pd.Series([p.x for p in df.geometry]), pd.Series([p.y for p in df.geometry]),
-                        ax=ax, **kwargs)
+        sns.kdeplot(pd.Series([p.x for p in df.geometry]), pd.Series([p.y for p in df.geometry]), ax=ax, **kwargs)
     return ax
 
 

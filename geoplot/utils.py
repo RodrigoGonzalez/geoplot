@@ -20,8 +20,7 @@ def classify_clusters(points, n=10):
     arr = [[p.x, p.y] for p in points.values]
     clf = KMeans(n_clusters=n)
     clf.fit(arr)
-    classes = clf.predict(arr)
-    return classes
+    return clf.predict(arr)
 
 
 def gaussian_polygons(points, n=10):
